@@ -12,6 +12,7 @@
   padding-top: 5vh;
   padding-bottom: 5vh;
 
+
   &_active {
     display: flex;
   }
@@ -29,6 +30,7 @@
 
   &__content {
     flex-grow: 1;
+    
   }
 
   &__title {

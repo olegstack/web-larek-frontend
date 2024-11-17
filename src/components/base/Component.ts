@@ -15,6 +15,11 @@ export abstract class Component<T> {
 		}
 	}
 
+	// Метод для управления состоянием кнопки
+	toggleButton(element: HTMLButtonElement, state: boolean) {
+		this.setDisabled(element, state);
+	}
+
 	// Сменить статус блокировки
 	setDisabled(element: HTMLElement, state: boolean) {
 		if (element) {

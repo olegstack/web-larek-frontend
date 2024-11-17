@@ -6,7 +6,7 @@ export interface IProduct {
 	description?: string;
 	id: string;
 	productInBasket?: boolean;
-	basketPosition?: number;
+	basketItemIndex?: number;
 }
 
 export interface IOrder {

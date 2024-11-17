@@ -19,6 +19,14 @@ export class ProductCard extends Component<ICard> {
 	protected _button: HTMLButtonElement;
 	protected _description?: HTMLElement;
 
+	protected _categoryColor: Record<string, string> = {
+		'софт-скил': 'soft',
+		другое: 'other',
+		дополнительное: 'additional',
+		кнопка: 'button',
+		'хард-скил': 'hard',
+	};
+
 	constructor(container: HTMLElement, protected actions: ICardActions) {
 		super(container);
 
@@ -49,26 +57,14 @@ export class ProductCard extends Component<ICard> {
 	}
 
 	set category(value: string) {
-		this.setText(this._category, value);
-		this._category?.classList.remove(
-			'card__category_soft',
-			'card__category_other',
-			'card__category_additional',
-			'card__category_button',
-			'card__category_hard'
-		);
-
-		if (value === 'софт-скил') {
-			this._category?.classList.add('card__category_soft');
-		} else if (value === 'другое') {
-			this._category?.classList.add('card__category_other');
-		} else if (value === 'дополнительное') {
-			this._category?.classList.add('card__category_additional');
-		} else if (value === 'кнопка') {
-			this._category?.classList.add('card__category_button');
-		} else if (value === 'хард-скил') {
-			this._category?.classList.add('card__category_hard');
+		if (!this._category) {
+			return;
 		}
+		this.setText(this._category, value);
+
+		// Добавляем класс текущей категории
+		const categoryClass = this._categoryColor[value];
+		this.toggleClass(this._category, `card__category_${categoryClass}`, true);
 	}
 
 	set description(value: string) {
@@ -80,13 +76,12 @@ export class ProductCard extends Component<ICard> {
 	set price(value: number | null) {
 		if (value === null) {
 			this.setText(this._price, 'Бесценно');
-			this.setDisabled(this._button, true);
+			this.toggleButton(this._button, true);
 		} else {
 			this.setText(this._price, `${value} синапсов`);
-			this.setDisabled(this._button, false);
+			this.toggleButton(this._button, false);
 		}
 	}
-	
 
 	set changeName(productInBasket: boolean) {
 		if (!productInBasket) {
@@ -94,15 +89,6 @@ export class ProductCard extends Component<ICard> {
 		} else {
 			this.setText(this._button, 'Убрать из корзины');
 		}
-	}
-
-	setData(product: IProduct): void {
-		this.title = product.title;
-		this.image = product.image;
-		this.category = product.category;
-		this.price = product.price;
-		this.description = product.description || '';
-		this.container.dataset.productId = product.id;
 	}
 
 	get id(): string {

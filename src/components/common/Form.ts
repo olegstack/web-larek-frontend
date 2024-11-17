@@ -14,7 +14,10 @@ export class Form<T> extends Component<IFormState> {
 	constructor(protected container: HTMLFormElement, protected events: IEvents) {
 		super(container);
 
-		this._submit = ensureElement<HTMLButtonElement>('button[type=submit]',this.container);
+		this._submit = ensureElement<HTMLButtonElement>(
+			'button[type=submit]',
+			this.container
+		);
 		this._errors = ensureElement<HTMLElement>('.form__errors', this.container);
 
 		this.container.addEventListener('input', (e: Event) => {
@@ -38,7 +41,7 @@ export class Form<T> extends Component<IFormState> {
 	}
 
 	set valid(value: boolean) {
-		this._submit.disabled = !value;
+		this.setDisabled(this._submit, !value);
 	}
 
 	set errors(value: string) {

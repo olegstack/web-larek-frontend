@@ -7,12 +7,13 @@ import { Page } from './components/Page';
 import { ProductCard, CardInBasket } from './components/ProductCard';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Modal } from './components/common/Modal';
-import { Basket } from './components/common/Basket';
 import { OrderForm } from './components/OrderForm';
-import { Success } from './components/common/Success';
+
 import { ModalContacts } from './components/ModalContact';
 import { IOrderResponse, ModalForm, ModalContact } from './types';
 import { ProductItem } from './components/ProductItem';
+import { Basket } from './components/Basket';
+import { Success } from './components/Success';
 
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
@@ -47,7 +48,10 @@ const success = new Success(cloneTemplate(successTemplate), {
 api.getProductList().then((productList) => {
 	appData.setCatalog(productList);
 	events.emit('items:changed');
-});
+})
+.catch((error) => {
+		console.error('Ошибка при загрузке каталога продуктов:', error);
+	});
 
 // Обработка изменения каталога
 events.on('items:changed', () => {
@@ -56,11 +60,16 @@ events.on('items:changed', () => {
 		const card = new ProductCard(cardContainer, {
 			onClick: () => events.emit('card:select', item),
 		});
-		card.setData(item);
-		return cardContainer;
+		return card.render({
+			category: item.category,
+			title: item.title,
+			image: item.image,
+			price: item.price
+		});
 	});
 	page.counter = appData.getProductsInBasket().length;
-});
+})
+
 
 // Обработка выбора товара
 events.on('card:select', (item: ProductItem) => {
@@ -96,16 +105,18 @@ events.on('preview:changed', (item: ProductItem) => {
 // Обновление содержимого корзины
 events.on('basket:changed', () => {
 	const cards = appData.getProductsInBasket().map((item, index) => {
-		const cardContainer = cloneTemplate(cardBasketTemplate);
-		const card = new CardInBasket(cardContainer, {
-			onClick: () => {
-				appData.removeFromBasket(item);
-				events.emit('basket:changed');
-			},
-		});
-		card.setData({ ...item, basketPosition: index + 1 });
-		return cardContainer;
+	const cardInBasket = new CardInBasket(cloneTemplate(cardBasketTemplate), {
+		onClick: () => {
+			appData.removeFromBasket(item);
+			events.emit('basket:changed', item);
+		},
 	});
+		return cardInBasket.render({
+			title: item.title,
+			price: item.price,
+            basketItemIndex: index + 1,
+	});
+});
 	basket.items = cards;
 	page.counter = appData.getProductsInBasket().length;
 	basket.total = appData.getTotalPrice();
@@ -165,7 +176,7 @@ events.on('contacts:submit', () => {
 			events.emit('basket:changed');
 		})
 		.catch((err) => {
-			console.error('Error submitting order:', err);
+			console.error('Ошибка при отправке заказа:', err);
 		});
 });
 
